@@ -40,6 +40,7 @@ import android.content.res.AssetManager;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.HandlerThread;
 import android.os.Binder;
@@ -294,37 +295,30 @@ public class BenServer extends Service {
             while (it.hasNext()) {
                 Object key = it.next();
                 Object value = parameters.get(key);
-                //Log.v(TAG,"Request parameters - key="+key+" value="+value);
+                Log.v(TAG,"Request parameters - key="+key+" value="+value);
             }
+
 
             if (uri.equals("/")) uri = "/index.html";
             switch (uri) {
-                case "/data":
-                    Log.v(TAG,"WebServer.serve() - Returning data");
-                    try {
-                        answer = "data";
-                    } catch (Exception ex) {
-                        Log.v(TAG, "Error Creating Data Object - " + ex.toString());
-                        answer = "Error Creating Data Object";
+                case "/play":
+                    String idStr = "unknwon";
+                    if (parameters.containsKey("id")) {
+                        idStr = parameters.get("id");
+                    } else {
+                        idStr = "unknown";
                     }
-                    break;
 
-
-                case "/spectrum":
-                    Log.v(TAG, "WebServer.serve() - Returning spectrum - 1");
+                    Log.v(TAG,"WebServer.serve() - Playing video "+idStr);
                     try {
-                        JSONObject jsonObj = new JSONObject();
-                        // Initialised it this way because one phone was ok with JSONArray(mSdData.simpleSpec), and the other crashed...
-                        JSONArray arr = new JSONArray();
-                        for (int i = 0; i < 10; i++) {
-                            arr.put(i);
-                        }
-                        jsonObj.put("simpleSpec", arr);
-                        answer = jsonObj.toString();
-                        Log.v(TAG, "WebServer.serve() - Returning spectrum - 5" + answer);
+                        answer = "playing video "+idStr;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:"+idStr));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        startActivity(intent);
                     } catch (Exception ex) {
-                        Log.v(TAG, "Error Creating Data Object - " + ex.toString());
-                        answer = "Error Creating Data Object";
+                        Log.v(TAG, "Error Playing video"+idStr+" - " + ex.toString());
+                        answer = "Error playing video "+idStr+": "+ex.toString();
                     }
                     break;
 

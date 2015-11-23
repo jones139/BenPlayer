@@ -66,9 +66,9 @@ public class StartupActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_activity);
-        mUtil = new OsdUtil(this);
+        mUtil = new BenUtil(this);
 
-        Button b = (Button)findViewById(R.id.settingsButton);
+/*        Button b = (Button)findViewById(R.id.settingsButton);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,7 +100,7 @@ public class StartupActivity extends Activity {
 
             }
         });
-
+*/
     }
 
     @Override
@@ -111,17 +111,18 @@ public class StartupActivity extends Activity {
         SharedPreferences SP = PreferenceManager
                 .getDefaultSharedPreferences(getBaseContext());;
         String dataSourceName = SP.getString("DataSource","undefined");
-        TextView tv = (TextView)findViewById(R.id.dataSourceTextView);
-        tv.setText("DataSource = "+dataSourceName);
+        //TextView tv = (TextView)findViewById(R.id.dataSourceTextView);
+        //tv.setText("DataSource = "+dataSourceName);
 
         if (mUtil.isServerRunning()) {
             Log.v(TAG, "onStart() - server running - stopping it");
             mUtil.stopServer();
         }
+        Log.v(TAG, "onStart() - starting server...");
         mUtil.startServer();
 
         // Bind to the service.
-        mConnection = new SdServiceConnection(this);
+        mConnection = new BenServiceConnection(this);
         mUtil.bindToServer(this, mConnection);
 
         // start timer to refresh user interface every second.
@@ -157,7 +158,7 @@ public class StartupActivity extends Activity {
             TextView tv;
             ProgressBar pb;
 
-            // Service Running
+           // Service Running
             tv = (TextView) findViewById(R.id.textItem1);
             pb = (ProgressBar) findViewById(R.id.progressBar1);
             if (mUtil.isServerRunning()) {
@@ -187,79 +188,16 @@ public class StartupActivity extends Activity {
                 allOk = false;
             }
 
-            // Is Pebble Watch Connected?
-            tv = (TextView) findViewById(R.id.textItem3);
-            pb = (ProgressBar) findViewById(R.id.progressBar3);
-            if (mConnection.pebbleConnected()) {
-                tv.setText("Pebble Watch Connected OK");
-                tv.setBackgroundColor(okColour);
-                pb.setIndeterminateDrawable(getResources().getDrawable(R.drawable.start_server));
-                pb.setProgressDrawable(getResources().getDrawable(R.drawable.start_server));
-            } else {
-                tv.setText("Waiting to Connect to Pebble Watch.....");
-                tv.setBackgroundColor(alarmColour);
-                pb.setIndeterminate(true);
-                allOk = false;
-            }
-
-            // Is Pebble Watch App Running?
-            tv = (TextView) findViewById(R.id.textItem4);
-            pb = (ProgressBar) findViewById(R.id.progressBar4);
-            if (mConnection.pebbleAppRunning()) {
-                tv.setText("Watch App Running OK");
-                tv.setBackgroundColor(okColour);
-                pb.setIndeterminateDrawable(getResources().getDrawable(R.drawable.start_server));
-                pb.setProgressDrawable(getResources().getDrawable(R.drawable.start_server));
-            } else {
-                tv.setText("Waiting for Watch App to Start.....");
-                tv.setBackgroundColor(alarmColour);
-                pb.setIndeterminate(true);
-                allOk = false;
-            }
-
-
-            // Do we have seizure detector data?
-            tv = (TextView) findViewById(R.id.textItem5);
-            pb = (ProgressBar) findViewById(R.id.progressBar5);
-            if (mConnection.hasSdData()) {
-                tv.setText("Seizure Detector Data Received OK");
-                tv.setBackgroundColor(okColour);
-                pb.setIndeterminateDrawable(getResources().getDrawable(R.drawable.start_server));
-                pb.setProgressDrawable(getResources().getDrawable(R.drawable.start_server));
-            } else {
-                tv.setText("Waiting for Seizure Detector Data...");
-                tv.setBackgroundColor(alarmColour);
-                pb.setIndeterminate(true);
-                allOk = false;
-            }
-
-
-            // Do we have seizure detector settings yet?
-            tv = (TextView) findViewById(R.id.textItem6);
-            pb = (ProgressBar) findViewById(R.id.progressBar6);
-            if (mConnection.hasSdSettings()) {
-                tv.setText("Seizure Detector Settings Received OK");
-                tv.setBackgroundColor(okColour);
-                pb.setIndeterminateDrawable(getResources().getDrawable(R.drawable.start_server));
-                pb.setProgressDrawable(getResources().getDrawable(R.drawable.start_server));
-            } else {
-                tv.setText("Waiting for Seizure Detector Settings...");
-                tv.setBackgroundColor(alarmColour);
-                pb.setIndeterminate(true);
-                allOk = false;
-            }
-
-
             // If all the parameters are ok, close this activity and open the main
             // user interface activity instead.
             if (allOk) {
-                Log.v(TAG, "starting main activity...");
+                Log.v(TAG, "server running - exiting activity...");
                 try {
-                    Intent intent = new Intent(
-                            getApplicationContext(),
-                            MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
+                    //Intent intent = new Intent(
+                    //        getApplicationContext(),
+                    //        MainActivity.class);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    //startActivity(intent);
                     finish();
                 } catch (Exception ex) {
                     Log.v(TAG, "exception starting settings activity " + ex.toString());

@@ -83,10 +83,12 @@ public class BenUtil {
      * Start the SdServer service
      */
     public void startServer() {
+        Log.v(TAG,"startServer() - starting server....");
         // Start the server
         Intent sdServerIntent;
         sdServerIntent = new Intent(mContext, BenServer.class);
         sdServerIntent.setData(Uri.parse("Start"));
+        showToast("Starting Service...");
         mContext.startService(sdServerIntent);
     }
 
