@@ -1,7 +1,10 @@
 package net.homeip.ennismore.benplayerremote;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +15,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -26,6 +32,7 @@ import org.apache.http.params.HttpParams;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private String TAG = "MainActivity";
+    private String mYouTubeApiKey = "AIzaSyDlpSLX40vE-5mCZZCc6ILvHHCPQBPS4Jk";
     private ArrayList<String> videoIds;
     private String benPlayerIp = "0.0.0.0";
     private String benPlayerPort = "80";
@@ -37,13 +44,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         videoIds = new ArrayList<String>();
         setContentView(R.layout.activity_main);
 
-        Button b;
-        ((ImageButton) findViewById(R.id.imageButton1)).setOnClickListener(this);
-        ((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(this);
-        ((ImageButton) findViewById(R.id.imageButton3)).setOnClickListener(this);
-        ((ImageButton) findViewById(R.id.imageButton4)).setOnClickListener(this);
-        ((ImageButton) findViewById(R.id.imageButton5)).setOnClickListener(this);
-        ((ImageButton) findViewById(R.id.imageButton6)).setOnClickListener(this);
     }
 
     @Override
@@ -52,11 +52,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.v(TAG, "onStart()");
         updatePrefs();
 
+        ImageButton b;
+        b = ((ImageButton) findViewById(R.id.imageButton1));
+        b.setOnClickListener(this);
+        AsyncTask at = new ThumbnailRetriever(b).execute(videoIds.get(1));
+        // Button 2
+        b = ((ImageButton) findViewById(R.id.imageButton2));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(2));
+        // Button 3
+        b = ((ImageButton) findViewById(R.id.imageButton3));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(3));
+        // Button 4
+        b = ((ImageButton) findViewById(R.id.imageButton4));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(4));
+        // Button 5
+        b = ((ImageButton) findViewById(R.id.imageButton5));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(5));
+        // Button 6
+        b = ((ImageButton) findViewById(R.id.imageButton6));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(6));
+
+        Button bb = (Button) findViewById(R.id.settingsButton);
+        bb.setOnClickListener(this);
+
     }
 
     @Override
     public void onClick(View v) {
         int buttonNo = 0;
+
+        if (v == findViewById(R.id.settingsButton)) {
+            Log.v(TAG, "settings button clicked");
+            try {
+                Intent intent = new Intent(
+                        MainActivity.this,
+                        PrefsActivity.class);
+                startActivity(intent);
+            } catch (Exception ex) {
+                Log.v(TAG, "exception starting settings activity " + ex.toString());
+            }
+            return;
+        }
+
         if (v == findViewById(R.id.imageButton1)) buttonNo = 1;
         if (v == findViewById(R.id.imageButton2)) buttonNo = 2;
         if (v == findViewById(R.id.imageButton3)) buttonNo = 3;
@@ -108,13 +150,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public class PlayVideo extends AsyncTask<String, Integer, String> {
         private String mMsg;
+
         @Override
         protected String doInBackground(String... params) {
             String videoId = params[0];
             Log.v(TAG, "PlayVideo.doInBackground() - videoId = " + videoId);
 
-            String url = "http://"+benPlayerIp+":"+benPlayerPort+"/play?id="+videoId;
-            Log.v(TAG,"url="+url);
+            String url = "http://" + benPlayerIp + ":" + benPlayerPort + "/play?id=" + videoId;
+            Log.v(TAG, "url=" + url);
             byte[] result = null;
             final DefaultHttpClient client = new DefaultHttpClient();
             final HttpGet getRequest = new HttpGet(url);
@@ -124,8 +167,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (statusCode != HttpStatus.SC_OK) {
                     Log.w(TAG, "Error " + statusCode +
                             " playing video using " + url);
-                    mMsg = mMsg + "Error playing video using " + url + " Status Code = " + statusCode;
-                    return "Failed";
+                    return "Error " + statusCode +
+                            " playing video using " + url;
                 }
 
             } catch (Exception e) {
@@ -133,11 +176,109 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 getRequest.abort();
                 Log.e(TAG, "Something went wrong while" +
                         " playing video using url: " + url + ": Error is: " + e.toString());
-                return "Failed";
+                return ("Something went wrong while" +
+                        " playing video using url: " + url + ": Error is: " + e.toString());
+
             }
             return "Success";
         }
 
+        @Override
+        protected void onPostExecute(String msg) {
+            showToast(msg);
+        }
+
+    }
+
+
+    /**
+     * Make Network connection to a BenPlayer instance to play a video
+     */
+    public class ThumbnailRetriever extends AsyncTask<String, Integer, Bitmap> {
+        private String mMsg;
+        private ImageButton mImageButton;
+
+        public ThumbnailRetriever(ImageButton ib) {
+            mImageButton = ib;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String videoId = params[0];
+            Log.v(TAG, "getThumbnail.doInBackground() - videoId = " + videoId);
+
+            String url = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+            Log.v(TAG, "url=" + url);
+            byte[] result = null;
+            final DefaultHttpClient client = new DefaultHttpClient();
+            final HttpGet getRequest = new HttpGet(url);
+            try {
+                HttpResponse response = client.execute(getRequest);
+                final int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode != HttpStatus.SC_OK) {
+                    Log.w(TAG, "Error " + statusCode +
+                            " retrieving thumbnail using " + url);
+                    return null;
+                } else {
+                    final HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        InputStream inputStream = null;
+                        try {
+                            // getting contents from the stream
+                            inputStream = entity.getContent();
+                            // decoding stream data back into image Bitmap that android understands
+                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            Log.v(TAG, "getThumbnail.doInBackground() - Returning Bitmap");
+                            return bitmap;
+                        } catch (Exception ex) {
+                            Log.v(TAG, "getThumbnail.doInBackground() - Error - " + ex.toString());
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            entity.consumeContent();
+                            return null;
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                // You Could provide a more explicit error message for IOException
+                getRequest.abort();
+                Log.e(TAG, "Something went wrong while" +
+                        " playing video using url: " + url + ": Error is: " + e.toString());
+                return null;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            //Log.v(TAG, "onPostExecute()");
+            super.onPostExecute(bitmap);
+            Log.v(TAG, "onPostExecute()");
+            try {
+                if (bitmap != null) {
+                    Log.v(TAG, "setting imagebutton image");
+                    mImageButton.setImageBitmap(bitmap);
+                } else {
+                    Log.v(TAG, "onPostExecute - null image received");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error in onPostExecute()");
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * Display a Toast message on screen.
+     *
+     * @param msg - message to display.
+     */
+    public void showToast(String msg) {
+        Toast.makeText(getApplicationContext(), msg,
+                Toast.LENGTH_LONG).show();
     }
 
 
