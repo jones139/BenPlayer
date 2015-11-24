@@ -53,9 +53,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updatePrefs();
 
         ImageButton b;
+        AsyncTask at;
+        b = ((ImageButton) findViewById(R.id.imageButton0));
+        b.setOnClickListener(this);
+        at = new ThumbnailRetriever(b).execute(videoIds.get(0));
+        // Button 1
         b = ((ImageButton) findViewById(R.id.imageButton1));
         b.setOnClickListener(this);
-        AsyncTask at = new ThumbnailRetriever(b).execute(videoIds.get(1));
+        at = new ThumbnailRetriever(b).execute(videoIds.get(1));
         // Button 2
         b = ((ImageButton) findViewById(R.id.imageButton2));
         b.setOnClickListener(this);
@@ -99,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        if (v == findViewById(R.id.imageButton0)) buttonNo = 0;
         if (v == findViewById(R.id.imageButton1)) buttonNo = 1;
         if (v == findViewById(R.id.imageButton2)) buttonNo = 2;
         if (v == findViewById(R.id.imageButton3)) buttonNo = 3;

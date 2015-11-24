@@ -4,4 +4,33 @@
         android:key="BenPlayerIp"
         android:title="Ip Address of Ben Player device"
         android:defaultValue="192.168.42.129"/>
+    <EditTextPreference
+        android:key="VideoId0"
+        android:title="Video 0 ID"
+        android:defaultValue="xB5ceAruYrI"/>
+    <EditTextPreference
+        android:key="VideoId1"
+        android:title="Video 1 ID"
+        android:defaultValue="9ogQ0uge06o"/>
+    <EditTextPreference
+        android:key="VideoId2"
+        android:title="Video 2 ID"
+        android:defaultValue="IXGgDIj5KvA"/>
+    <EditTextPreference
+        android:key="VideoId3"
+        android:title="Video 3 ID"
+        android:defaultValue="eXvD86nAvK4"/>
+    <EditTextPreference
+        android:key="VideoId4"
+        android:title="Video 4 ID"
+        android:defaultValue="NRuKbQqHHGc"/>
+    <EditTextPreference
+        android:key="VideoId5"
+        android:title="Video 5 ID"
+        android:defaultValue="OQmvg_nKOoc"/>
+    <EditTextPreference
+        android:key="VideoId6"
+        android:title="Video 6 ID"
+        android:defaultValue="5HDw7sQE2H0"/>
+
 </PreferenceScreen>

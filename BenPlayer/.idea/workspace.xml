@@ -10,11 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6039a889-3864-40f1-80d3-6149e138c49f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/java/net/homeip/ennismore/benplayer/ScreenOnActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/net/homeip/ennismore/benplayer/BenServer.java" afterPath="$PROJECT_DIR$/app/src/main/java/net/homeip/ennismore/benplayer/BenServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../BenPlayerRemote/.idea/misc.xml" afterPath="$PROJECT_DIR$/../BenPlayerRemote/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/java/net/homeip/ennismore/benplayerremote/MainActivity.java" afterPath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/java/net/homeip/ennismore/benplayerremote/MainActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/res/layout/activity_main.xml" afterPath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/res/layout/activity_main.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/res/xml/prefs.xml" afterPath="$PROJECT_DIR$/../BenPlayerRemote/app/src/main/res/xml/prefs.xml" />
     </list>
     <ignored path="BenPlayer.iws" />
     <ignored path=".idea/workspace.xml" />
