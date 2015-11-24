@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v == findViewById(R.id.imageButton6)) buttonNo = 6;
 
         Log.v(TAG, "ButtonNo = " + buttonNo);
+        showToast("Playing Video Number "+buttonNo);
         AsyncTask pv = new PlayVideo().execute(videoIds.get(buttonNo));
     }
 
@@ -157,6 +158,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public class PlayVideo extends AsyncTask<String, Integer, String> {
         private String mMsg;
 
+        /**
+         * Send a 'play' command to the BenPlayer for the specified video Id.
+         * @param params
+         * @return
+         */
         @Override
         protected String doInBackground(String... params) {
             String videoId = params[0];
@@ -171,24 +177,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 HttpResponse response = client.execute(getRequest);
                 final int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode != HttpStatus.SC_OK) {
-                    Log.w(TAG, "Error " + statusCode +
+                    Log.w(TAG, "PlayVideo.doInBackground - Error " + statusCode +
                             " playing video using " + url);
                     return "Error " + statusCode +
                             " playing video using " + url;
+                } else {
+                    Log.v(TAG,"PlayVideo.doInBackground - Playing Video");
+                    return ("Playing Video....");
                 }
 
             } catch (Exception e) {
                 // You Could provide a more explicit error message for IOException
                 getRequest.abort();
-                Log.e(TAG, "Something went wrong while" +
+                Log.e(TAG, "PlayVideo.doInBackground() - Something went wrong while" +
                         " playing video using url: " + url + ": Error is: " + e.toString());
                 return ("Something went wrong while" +
                         " playing video using url: " + url + ": Error is: " + e.toString());
 
             }
-            return "Success";
         }
 
+        /**
+         * When we have finished sending the command to play the video, display the resulting message on screen.
+         * @param msg
+         */
         @Override
         protected void onPostExecute(String msg) {
             showToast(msg);
@@ -198,7 +210,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     /**
-     * Make Network connection to a BenPlayer instance to play a video
+     * Retrieve thumbnail image of a YouTube video and modify an ImageButton to use the
+     * thumbnail image.
+     * Usage:
+     * AsyncTask at = new ThumbnailReceiver(ImageButton ib);
+     * at.execute(Strinv videoId);
      */
     public class ThumbnailRetriever extends AsyncTask<String, Integer, Bitmap> {
         private String mMsg;
