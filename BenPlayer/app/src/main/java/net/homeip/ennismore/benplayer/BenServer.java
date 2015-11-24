@@ -65,7 +65,6 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 
-
 /**
  * Based on example at:
  * http://stackoverflow.com/questions/14309256/using-nanohttpd-in-android
@@ -195,23 +194,21 @@ public class BenServer extends Service {
      */
     private void showNotification() {
         Log.v(TAG, "showNotification()");
-        Intent i = new Intent(getApplicationContext(),MainActivity.class);
+        Intent i = new Intent(getApplicationContext(), MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent contentIntent = PendingIntent.getActivity(this,0,i,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         Notification notification = builder.setContentIntent(contentIntent)
                 .setSmallIcon(R.drawable.star_of_life_24x24)
                 .setTicker("BenPlayer")
                 .setAutoCancel(false)
                 .setContentTitle("BenPlayer")
-                .setContentText("Benjamin's Video Player")
+                .setContentText("Listening on http://" + mUtil.getLocalIpAddress() + ":8080")
                 .build();
 
         mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNM.notify(NOTIFICATION_ID, notification);
     }
-
-
 
 
     /**
@@ -249,7 +246,6 @@ public class BenServer extends Service {
     }
 
 
-
     /**
      * updatePrefs() - update basic settings from the SharedPreferences
      * - defined in res/xml/prefs.xml
@@ -270,6 +266,27 @@ public class BenServer extends Service {
     }
 
 
+    /**
+     * Play YouTube video id idStr using the system YouTube App.
+     * FIXME:  Make it use the YouTube API so we can have more control later.
+     *
+     * @param idStr - the YouTube ID of the video to be played.
+     */
+    private void playVideo(String idStr) {
+        Intent intent;
+        // switch the phone screen on.
+        Log.v(TAG,"playVideo() - Switching screen on with ScreenOnActivity");
+        intent = new Intent(getApplicationContext(),ScreenOnActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        // Start the youtube app to play the video.
+        Log.v(TAG,"playVideo() - Playing Video "+idStr);
+        intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + idStr));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("force_fullscreen",true);
+        startActivity(intent);
+    }
 
     /**
      * Class describing the seizure detector web server - appears on port
@@ -295,7 +312,7 @@ public class BenServer extends Service {
             while (it.hasNext()) {
                 Object key = it.next();
                 Object value = parameters.get(key);
-                Log.v(TAG,"Request parameters - key="+key+" value="+value);
+                Log.v(TAG, "Request parameters - key=" + key + " value=" + value);
             }
 
 
@@ -309,19 +326,19 @@ public class BenServer extends Service {
                         idStr = "unknown";
                     }
 
-                    Log.v(TAG,"WebServer.serve() - Playing video "+idStr);
+                    Log.v(TAG, "WebServer.serve() - Playing video " + idStr);
                     try {
-                        answer = "playing video "+idStr;
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:"+idStr));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                        startActivity(intent);
+                        answer = "playing video " + idStr;
+                        playVideo(idStr);
                     } catch (Exception ex) {
-                        Log.v(TAG, "Error Playing video"+idStr+" - " + ex.toString());
-                        answer = "Error playing video "+idStr+": "+ex.toString();
+                        Log.v(TAG, "Error Playing video" + idStr + " - " + ex.toString());
+                        answer = "Error playing video " + idStr + ": " + ex.toString();
                     }
-                    break;
 
+                    break;
+                case "/isBenPlayer":
+                    answer = "True";
+                    break;
                 default:
                     if (uri.startsWith("/index.html") ||
                             uri.startsWith("/favicon.ico") ||
@@ -329,7 +346,7 @@ public class BenServer extends Service {
                             uri.startsWith("/css/") ||
                             uri.startsWith("/img/")) {
                         //Log.v(TAG,"Serving File");
-                        answer =  "serveFile not implemented on this server!!";
+                        answer = "serveFile not implemented on this server!!";
                     } else {
                         Log.v(TAG, "WebServer.serve() - Unknown uri -" +
                                 uri);
