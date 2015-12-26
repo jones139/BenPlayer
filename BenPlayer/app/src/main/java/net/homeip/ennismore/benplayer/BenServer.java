@@ -284,7 +284,7 @@ public class BenServer extends Service {
         Log.v(TAG,"playVideo() - Playing Video "+idStr);
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + idStr));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("force_fullscreen",true);
+        intent.putExtra("force_fullscreen", true);
         startActivity(intent);
     }
 
@@ -318,6 +318,8 @@ public class BenServer extends Service {
 
             if (uri.equals("/")) uri = "/index.html";
             switch (uri) {
+                //--------------------------------------------------
+                // Play Youtube Video
                 case "/play":
                     String idStr = "unknwon";
                     if (parameters.containsKey("id")) {
@@ -336,6 +338,37 @@ public class BenServer extends Service {
                     }
 
                     break;
+                //------------------------------------------------------
+                // Play Local Video
+                case "/playLocal":
+                    idStr = "unknwon";
+                    if (parameters.containsKey("id")) {
+                        idStr = parameters.get("id");
+                    } else {
+                        idStr = "unknown";
+                    }
+
+                    Log.v(TAG, "WebServer.serve() - Playing local video " + idStr);
+                    try {
+                        answer = "playing video " + idStr;
+                        LocalVideoPlayer lvp = new LocalVideoPlayer(getApplicationContext());
+                        lvp.playLocalVideo(idStr);
+                    } catch (Exception ex) {
+                        Log.v(TAG, "Error Playing video" + idStr + " - " + ex.toString());
+                        answer = "Error playing video " + idStr + ": " + ex.toString();
+                    }
+
+                    break;
+
+                //--------------------------------------------------------
+                // Get List of Local Videos
+                case "/getLocal":
+                    LocalVideoPlayer lvp = new LocalVideoPlayer(getApplicationContext());
+                    answer = lvp.getLocalVideoList();
+                    break;
+
+                //---------------------------------------------------------
+                // Confirm this server is a BenPlayer
                 case "/isBenPlayer":
                     answer = "True";
                     break;
