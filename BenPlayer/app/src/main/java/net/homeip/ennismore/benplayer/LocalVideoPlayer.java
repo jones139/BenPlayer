@@ -9,7 +9,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,27 +85,42 @@ public class LocalVideoPlayer {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
 
-        // Start the video player app.
         Log.v(TAG,"playLocalVideo() - Playing Video "+idStr);
         long id = Long.parseLong(idStr);
         Uri uri = getMediaUri(id);
-        intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        intent = new Intent(mContext,VideoPlaybackActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("force_fullscreen",true);
+        intent.putExtra("MediaUri", uri.toString());
+        Log.v(TAG, "Starting video player for uri " + uri.toString());
         mContext.startActivity(intent);
 
     }
 
-    public void stopLocalVideo() {
-        // FIXME - this doesn't work!!!
+    private void sendCmd(String msg) {
+        Log.v(TAG, "sendCmd(" + msg + ")");
         Intent intent;
+        intent = new Intent(VideoPlaybackActivity.BROADCAST_ID);
+        intent.putExtra("cmd", msg);
+        mContext.sendBroadcast(intent);
+    }
 
-        // Start the video player app.
-        Log.v(TAG,"stopLocalVideo() - Stopping Video ");
-        intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("force_fullscreen",true);
-        mContext.startActivity(intent);
+    public void stopLocalVideo() {
+        Log.v(TAG,"stopLocalVideo()");
+        sendCmd("stop");
+    }
+
+    public void forwardVideo() {
+        sendCmd("forward");
+    }
+
+    public void backwardVideo() {
+        sendCmd("backward");
+    }
+
+    private void showToast(String msg) {
+        Toast toast = Toast.makeText(mContext,msg,Toast.LENGTH_SHORT);
+        toast.show();
 
     }
 

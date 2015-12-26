@@ -315,6 +315,7 @@ public class BenServer extends Service {
                 Log.v(TAG, "Request parameters - key=" + key + " value=" + value);
             }
 
+            LocalVideoPlayer lvp;
 
             if (uri.equals("/")) uri = "/index.html";
             switch (uri) {
@@ -351,7 +352,7 @@ public class BenServer extends Service {
                     Log.v(TAG, "WebServer.serve() - Playing local video " + idStr);
                     try {
                         answer = "playing video " + idStr;
-                        LocalVideoPlayer lvp = new LocalVideoPlayer(getApplicationContext());
+                        lvp = new LocalVideoPlayer(getApplicationContext());
                         lvp.playLocalVideo(idStr);
                     } catch (Exception ex) {
                         Log.v(TAG, "Error Playing video" + idStr + " - " + ex.toString());
@@ -359,11 +360,23 @@ public class BenServer extends Service {
                     }
 
                     break;
+                case "/stop":
+                    lvp = new LocalVideoPlayer(getApplicationContext());
+                    lvp.stopLocalVideo();
+                    break;
+                case "/forward":
+                    lvp = new LocalVideoPlayer(getApplicationContext());
+                    lvp.forwardVideo();
+                    break;
+                case "/backward":
+                    lvp = new LocalVideoPlayer(getApplicationContext());
+                    lvp.backwardVideo();
+                    break;
 
                 //--------------------------------------------------------
                 // Get List of Local Videos
                 case "/getLocal":
-                    LocalVideoPlayer lvp = new LocalVideoPlayer(getApplicationContext());
+                    lvp = new LocalVideoPlayer(getApplicationContext());
                     answer = lvp.getLocalVideoList();
                     break;
 

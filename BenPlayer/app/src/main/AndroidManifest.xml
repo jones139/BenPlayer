@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -22,14 +22,25 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+
         <service android:name=".BenServer" />
-        <activity android:name=".ScreenOnActivity"></activity>
+
+        <activity android:name=".ScreenOnActivity" />
         <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
-        <receiver android:name=".BootReceiver" android:enabled="true" android:exported="false">
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".VideoPlaybackActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_video_playback"
+            android:theme="@style/FullscreenTheme"></activity>
     </application>
 
 </manifest>
