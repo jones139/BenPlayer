@@ -54,6 +54,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageButton b;
         AsyncTask at;
+
+        b = ((ImageButton) findViewById(R.id.backwardButton));
+        b.setOnClickListener(this);
+
+        b = ((ImageButton) findViewById(R.id.stopButton));
+        b.setOnClickListener(this);
+
+        b = ((ImageButton) findViewById(R.id.forwardButton));
+        b.setOnClickListener(this);
+
         b = ((ImageButton) findViewById(R.id.imageButton0));
         b.setOnClickListener(this);
         at = new ThumbnailRetriever(b).execute(videoIds.get(0));
@@ -104,6 +114,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        if (v == findViewById(R.id.backwardButton)) {
+            showToast("Rewinding Video");
+            Log.v(TAG,"Rewinding Video");
+            AsyncTask pv = new SendServerCmd().execute("backward");
+            return;
+        }
+
+        if (v == findViewById(R.id.stopButton)) {
+            showToast("Stopping Video");
+            Log.v(TAG,"Stopping Video");
+            AsyncTask pv = new SendServerCmd().execute("stop");
+            return;
+        }
+
+        if (v == findViewById(R.id.forwardButton)) {
+            showToast("Forwarding Video");
+            Log.v(TAG,"Forwarding Video");
+            AsyncTask pv = new SendServerCmd().execute("forward");
+            return;
+        }
+
+
         if (v == findViewById(R.id.imageButton0)) buttonNo = 0;
         if (v == findViewById(R.id.imageButton1)) buttonNo = 1;
         if (v == findViewById(R.id.imageButton2)) buttonNo = 2;
@@ -151,6 +183,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toast.show();
         }
     }
+
+    /**
+     * Make Network connection to a BenPlayer instance to play a video
+     */
+    public class SendServerCmd extends AsyncTask<String, Integer, String> {
+        private String mMsg;
+
+        /**
+         * Send a command to the BenPlayer.
+         * @param params
+         * @return
+         */
+        @Override
+        protected String doInBackground(String... params) {
+            String cmd = params[0];
+            Log.v(TAG, "SendServerCmd.doInBackground() - cmd = " + cmd);
+
+            String url = "http://" + benPlayerIp + ":" + benPlayerPort + "/"+cmd;
+            Log.v(TAG, "url=" + url);
+            byte[] result = null;
+            final DefaultHttpClient client = new DefaultHttpClient();
+            final HttpGet getRequest = new HttpGet(url);
+            try {
+                HttpResponse response = client.execute(getRequest);
+                final int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode != HttpStatus.SC_OK) {
+                    Log.w(TAG, "SendServerCmd.doInBackground - Error " + statusCode +
+                            " Sent command " + url);
+                    return "Error " + statusCode +
+                            " sent command " + url;
+                } else {
+                    Log.v(TAG,"SendServerCmd.doInBackground - Sending Command");
+                    return ("Sending Command....");
+                }
+
+            } catch (Exception e) {
+                // You Could provide a more explicit error message for IOException
+                getRequest.abort();
+                Log.e(TAG, "SendServerCmd.doInBackground() - Something went wrong while" +
+                        " sending command url: " + url + ": Error is: " + e.toString());
+                return ("Something went wrong while" +
+                        " sending command url: " + url + ": Error is: " + e.toString());
+
+            }
+        }
+
+        /**
+         * When we have finished sending the command to play the video, display the resulting message on screen.
+         * @param msg
+         */
+        @Override
+        protected void onPostExecute(String msg) {
+            Log.v(TAG,"onPostExecute() - msg = "+msg);
+        }
+
+    }
+
 
     /**
      * Make Network connection to a BenPlayer instance to play a video
@@ -300,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void showToast(String msg) {
         Toast.makeText(getApplicationContext(), msg,
-                Toast.LENGTH_LONG).show();
+                Toast.LENGTH_SHORT).show();
     }
 
 
